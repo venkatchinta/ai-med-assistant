@@ -1,0 +1,57 @@
+{
+  "expo": {
+    "name": "AI Medical Assistant",
+    "slug": "ai-med-assistant",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "platforms": ["ios"],
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTabletMode": true,
+      "bundleIdentifier": "com.aimedassistant.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "We need access to your health data to provide personalized health insights and tracking.",
+        "NSHealthUpdateUsageDescription": "We may sync your health data across your devices.",
+        "NSFaceIDUsageDescription": "Use Face ID to securely unlock your medical records.",
+        "NSCameraUsageDescription": "Camera is not used by this app.",
+        "NSLocationWhenInUseUsageDescription": "Location is not used by this app.",
+        "NSNotificationPermissionUsageDescription": "We'll send medication reminders and important health alerts."
+      }
+    },
+    "plugins": [
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to use Face ID to unlock your account"
+        }
+      ],
+      [
+        "expo-apple-health",
+        {
+          "permissions": [
+            "HKQuantityTypeIdentifierStepCount",
+            "HKQuantityTypeIdentifierHeartRate",
+            "HKWorkoutTypeIdentifier",
+            "HKQuantityTypeIdentifierActiveEnergyBurned",
+            "HKQuantityTypeIdentifierBodyMass",
+            "HKQuantityTypeIdentifierBloodPressureSystolic",
+            "HKQuantityTypeIdentifierBloodPressureDiastolic",
+            "HKQuantityTypeIdentifierBodyTemperature"
+          ]
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      }
+    }
+  }
+}

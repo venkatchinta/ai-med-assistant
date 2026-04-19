@@ -1,0 +1,30 @@
+{
+  "build": {
+    "production": {
+      "ios": {
+        "image": "latest",
+        "resourceClass": "m-1"
+      }
+    },
+    "preview": {
+      "ios": {
+        "image": "latest",
+        "resourceClass": "m-1"
+      }
+    },
+    "development": {
+      "ios": {
+        "image": "latest",
+        "resourceClass": "m-1"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {}
+    },
+    "preview": {
+      "ios": {}
+    }
+  }
+}
