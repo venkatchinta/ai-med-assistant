@@ -9,6 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@med-assistant/api-client": "workspace:*",
+    "@med-assistant/store": "workspace:*",
+    "@med-assistant/types": "workspace:*",
+    "@med-assistant/utils": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.1",
@@ -16,7 +20,8 @@
     "date-fns": "^3.2.0",
     "lucide-react": "^0.303.0",
     "react-hot-toast": "^2.4.1",
-    "zustand": "^4.4.7"
+    "zustand": "^4.4.7",
+    "idb": "^8.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.47",

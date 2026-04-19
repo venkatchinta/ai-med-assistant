@@ -6,9 +6,9 @@ from contextlib import asynccontextmanager
 from app.core.config import settings
 from app.core.database import init_db, close_db
 from app.api.routes import (
-    auth, users, family, medications, 
+    auth, users, family, medications,
     lab_results, appointments, health_tracking,
-    ai_recommendations, patient_portal
+    ai_recommendations, patient_portal, sync
 )
 
 
@@ -48,6 +48,7 @@ app.include_router(appointments.router, prefix="/api/v1")
 app.include_router(health_tracking.router, prefix="/api/v1")
 app.include_router(ai_recommendations.router, prefix="/api/v1")
 app.include_router(patient_portal.router, prefix="/api/v1")
+app.include_router(sync.router, prefix="/api/v1")
 
 
 @app.get("/")
