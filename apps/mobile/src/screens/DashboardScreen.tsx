@@ -8,39 +8,109 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { useFamilyStore } from '@med-assistant/store'
+import { useHealthKit } from '../hooks/useHealthKit'
 
 export default function DashboardScreen({ navigation }: any) {
-  const [loading, setLoading] = useState(false)
   const familyMembers = useFamilyStore((state) => state.members || [])
+  const { metrics, loading, error, refresh } = useHealthKit({
+    autoInit: true,
+    refreshInterval: 60000, // Refresh every minute
+  })
 
   useEffect(() => {
-    setLoading(false)
-  }, [])
+    // Set up a listener for when screen focuses to refresh metrics
+    const unsubscribe = navigation?.addListener('focus', () => {
+      refresh()
+    })
+    return unsubscribe
+  }, [navigation, refresh])
+
+  const steps = metrics.steps ?? null
+  const heartRate = metrics.heart_rate ?? null
+  const activeEnergy = metrics.active_energy ?? null
+  const workouts = metrics.workouts ?? []
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Text style={styles.title}>Health Dashboard</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Health Dashboard</Text>
+        {!loading && (
+          <TouchableOpacity onPress={refresh} style={styles.refreshButton}>
+            <Text style={styles.refreshButtonText}>↻</Text>
+          </TouchableOpacity>
+        )}
+      </View>
 
-      {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#2563eb" />
+      {error && (
+        <View style={styles.errorBanner}>
+          <Text style={styles.errorText}>{error.message}</Text>
         </View>
-      ) : (
-        <>
-          {/* Health Metrics Cards */}
-          <View style={styles.metricsContainer}>
-            <View style={styles.metricCard}>
-              <Text style={styles.metricLabel}>Steps Today</Text>
-              <Text style={styles.metricValue}>-</Text>
-              <Text style={styles.metricSubtext}>From Apple Health</Text>
-            </View>
+      )}
 
-            <View style={styles.metricCard}>
-              <Text style={styles.metricLabel}>Heart Rate</Text>
-              <Text style={styles.metricValue}>-</Text>
+      {/* Health Metrics Cards */}
+      <View style={styles.metricsContainer}>
+        <View style={styles.metricCard}>
+          <Text style={styles.metricLabel}>Steps Today</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="#2563eb" style={styles.metricSpinner} />
+          ) : (
+            <>
+              <Text style={styles.metricValue}>
+                {steps ? steps.toLocaleString() : '—'}
+              </Text>
+              <Text style={styles.metricSubtext}>From Apple Health</Text>
+            </>
+          )}
+        </View>
+
+        <View style={styles.metricCard}>
+          <Text style={styles.metricLabel}>Heart Rate</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="#2563eb" style={styles.metricSpinner} />
+          ) : (
+            <>
+              <Text style={styles.metricValue}>
+                {heartRate ? `${heartRate}` : '—'}
+              </Text>
               <Text style={styles.metricSubtext}>BPM</Text>
+            </>
+          )}
+        </View>
+
+        <View style={styles.metricCard}>
+          <Text style={styles.metricLabel}>Active Energy</Text>
+          {loading ? (
+            <ActivityIndicator size="small" color="#2563eb" style={styles.metricSpinner} />
+          ) : (
+            <>
+              <Text style={styles.metricValue}>
+                {activeEnergy ? `${activeEnergy}` : '—'}
+              </Text>
+              <Text style={styles.metricSubtext}>kcal</Text>
+            </>
+          )}
+        </View>
+      </View>
+
+      {/* Workouts Section */}
+      {workouts.length > 0 && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Recent Workouts</Text>
+          {workouts.map((workout, index) => (
+            <View key={index} style={styles.workoutCard}>
+              <View>
+                <Text style={styles.workoutType}>{workout.type}</Text>
+                <Text style={styles.workoutDetails}>
+                  {workout.duration} min {workout.distance ? `• ${workout.distance.toFixed(1)}km` : ''}
+                </Text>
+                {workout.calories && (
+                  <Text style={styles.workoutCalories}>{workout.calories} kcal</Text>
+                )}
+              </View>
             </View>
-          </View>
+          ))}
+        </View>
+      )}
 
           {/* Family Members Section */}
           <View style={styles.section}>
@@ -110,28 +180,52 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f9fafb',
   },
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1f2937',
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
   },
-  loadingContainer: {
-    flex: 1,
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#1f2937',
+  },
+  refreshButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
   },
-  metricsContainer: {
-    flexDirection: 'row',
-    gap: 12,
+  refreshButtonText: {
+    fontSize: 20,
+    color: '#2563eb',
+    fontWeight: '600',
+  },
+  errorBanner: {
+    backgroundColor: '#fee2e2',
+    borderLeftWidth: 4,
+    borderLeftColor: '#ef4444',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    marginHorizontal: 16,
+    marginVertical: 8,
+    borderRadius: 8,
+  },
+  errorText: {
+    color: '#991b1b',
+    fontSize: 14,
+  },
+  metricsContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    gap: 12,
   },
   metricCard: {
-    flex: 1,
     backgroundColor: 'white',
     borderRadius: 12,
     padding: 16,
@@ -147,14 +241,41 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   metricValue: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     color: '#2563eb',
     marginBottom: 4,
   },
+  metricSpinner: {
+    marginVertical: 12,
+  },
   metricSubtext: {
     fontSize: 11,
     color: '#9ca3af',
+  },
+  workoutCard: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#10b981',
+  },
+  workoutType: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1f2937',
+    marginBottom: 4,
+  },
+  workoutDetails: {
+    fontSize: 14,
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  workoutCalories: {
+    fontSize: 12,
+    color: '#10b981',
+    fontWeight: '500',
   },
   section: {
     paddingHorizontal: 16,

@@ -22,6 +22,7 @@
     "@med-assistant/types": "workspace:*",
     "@med-assistant/utils": "workspace:*",
     "@med-assistant/mobile-db": "workspace:*",
+    "@med-assistant/health-kit-bridge": "workspace:*",
     "react-native": "0.73.6",
     "react": "18.2.0",
     "expo": "~50.0.0",
